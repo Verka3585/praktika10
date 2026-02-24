@@ -1,9 +1,20 @@
 <?php
     session_start();
     require_once("../settings/connect_datebase.php");
+    require_once("../libs/autoload.php");
     
     $login = $_POST['login'];
     $password = $_POST['password'];
+
+    if(!isset($_POST["g-recaptcha-response"]) || empty($_POST["g-recaptcha-response"])){
+        echo "Нет пройденной проверки";
+        exit;
+    }
+    
+    $Secret = "6LdshnUsAAAAABOOWYyb8nhFilrT9ffg46EHMgFA";
+    $Recaptcha = new \ReCaptcha\ReCaptcha($Secret);
+
+    $Response = $Recaptcha->verify($_POST["g-recaptcha-response"], $_SERVER["REMOTE_ADDR"]);
 
     if($Response->isSuccess()){
         $query_user = $mysqli->query("SELECT * FROM `users` WHERE `login`='".$login."' AND `password`= '".$password."';");
